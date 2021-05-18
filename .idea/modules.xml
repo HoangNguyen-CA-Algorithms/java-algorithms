@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/WeightedQuickUnion.iml" filepath="$PROJECT_DIR$/WeightedQuickUnion.iml" />
+      <module fileurl="file://$PROJECT_DIR$/java-algorithms.iml" filepath="$PROJECT_DIR$/java-algorithms.iml" />
     </modules>
   </component>
 </project>
