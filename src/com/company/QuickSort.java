@@ -17,8 +17,6 @@ public class QuickSort {
 
     private static void sort(Comparable[] arr, int l, int h) {
         if (h <= l) return;
-        System.out.println(l +" " + h);
-
 
         Comparable chosen = arr[l];
 
