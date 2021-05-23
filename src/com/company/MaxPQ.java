@@ -5,16 +5,15 @@ import java.util.NoSuchElementException;
 
 public class MaxPQ<Key extends Comparable<Key>> {
 
-    private Key[] PQ; // resizable array
+    private Key[] PQ; // resizable array in production code
     private int size = 0;
-
 
     public MaxPQ(int size) {
         PQ = (Key[]) new Comparable[size + 1];
     }
 
     public void insert(Key key) {
-        PQ[++size] = key;
+        PQ[size++] = key; // converted to 0-based index
         swim(size);
     }
 
@@ -24,26 +23,28 @@ public class MaxPQ<Key extends Comparable<Key>> {
 
     public Key delMax() {
         if (size < 1) throw new NoSuchElementException();
-        Key item = PQ[1];
+        Key item = PQ[0]; // converted to 0-based index
         swap(1, size);
-        PQ[size--] = null;
+        PQ[--size] = null;
         sink(1);
 
         return item;
     }
 
     private boolean less(int i, int j) {
-        Key a = PQ[i];
-        Key b = PQ[j];
+        Key a = PQ[i-1];
+        Key b = PQ[j-1];
         return a.compareTo(b) < 0;
     }
 
+    // converted to 0-based index
     private void swap(int i, int j) {
-        Key temp = PQ[i];
-        PQ[i] = PQ[j];
-        PQ[j] = temp;
+        Key temp = PQ[i-1];
+        PQ[i-1] = PQ[j-1];
+        PQ[j-1] = temp;
     }
 
+    // converted to 0-based index
     private void sink(int i) {
 
         while (left(i) <= size) {
@@ -95,19 +96,21 @@ public class MaxPQ<Key extends Comparable<Key>> {
 
 
     public static void main(String[] args) {
-        MaxPQ<Integer> q = new MaxPQ<>(5);
+        MaxPQ<Integer> q = new MaxPQ<>(20);
 
         q.insert(1);
         q.insert(5);
         q.insert(6);
         q.insert(4);
         q.insert(3);
+        q.insert(8);
+        q.insert(84);
+        q.insert(22);
 
 
 
         while (q.size() > 0) {
             System.out.println(q.delMax());
         }
-
     }
 }
