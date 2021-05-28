@@ -107,8 +107,6 @@ public class MaxPQ<Key extends Comparable<Key>> {
         q.insert(84);
         q.insert(22);
 
-
-
         while (q.size() > 0) {
             System.out.println(q.delMax());
         }
