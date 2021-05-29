@@ -1,19 +1,33 @@
 package com.company;
 
-public class SymbolTableBST<Key extends Comparable<Key>, Val>{
+import java.util.LinkedList;
+import java.util.Queue;
+
+public class SymbolTableBST<Key extends Comparable<Key>, Val> {
 
     private Node root;
 
-    private class Node{
+    private class Node {
         private Key key;
         private Val val;
         private Node left;
         private Node right;
+        private int count;
 
         public Node(Key key, Val val) {
             this.key = key;
             this.val = val;
+            this.count = 1;
         }
+    }
+
+    public int size() {
+        return size(root);
+    }
+
+    private int size(Node x) {
+        if (x == null) return 0;
+        return x.count;
     }
 
 
@@ -22,13 +36,15 @@ public class SymbolTableBST<Key extends Comparable<Key>, Val>{
     }
 
     // recursive function to insert into BST
-    private Node put(Node node, Key key, Val val) {
-        if (node == null) return new Node(key, val);
-        int cmp = key.compareTo(node.key);
-        if (cmp < 0) node.left = put(node.left, key, val);
-        if (cmp > 0) node.right = put(node.right, key, val);
-        else node.val = val;
-        return node;
+    private Node put(Node x, Key key, Val val) {
+        if (x == null) return new Node(key, val);
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) x.left = put(x.left, key, val);
+        if (cmp > 0) x.right = put(x.right, key, val);
+        else x.val = val;
+
+        x.count = 1 + size(x.left) + size(x.right);
+        return x;
     }
 
     public Val get(Key key) {
@@ -44,11 +60,16 @@ public class SymbolTableBST<Key extends Comparable<Key>, Val>{
 
     public Val min() {
         if (root == null) return null;
-        Node x = root;
+        Node x = min(root);
+        return x.val;
+    }
+
+    private Node min(Node x) {
+        if (x == null) return null;
         while (x.left != null) {
             x = x.left;
         }
-        return x.val;
+        return x;
     }
 
     public Val max() {
@@ -57,6 +78,12 @@ public class SymbolTableBST<Key extends Comparable<Key>, Val>{
         while (x.right != null) {
             x = x.right;
         }
+        return x.val;
+    }
+
+    public Val floor(Key key) {
+        Node x = floor(root, key);
+        if (x == null) return null;
         return x.val;
     }
 
@@ -72,8 +99,9 @@ public class SymbolTableBST<Key extends Comparable<Key>, Val>{
         return x;
     }
 
-    public Val floor(Key key) {
-        Node x = floor(root, key);
+
+    public Val ceil(Key key) {
+        Node x = ceil(root, key);
         if (x == null) return null;
         return x.val;
     }
@@ -89,28 +117,68 @@ public class SymbolTableBST<Key extends Comparable<Key>, Val>{
         return x;
     }
 
-    public Val ceil(Key key) {
-        Node x = ceil(root, key);
-        if (x == null) return null;
-        return x.val;
+
+    public int rank(Key key) {
+        return rank(root, key);
+    }
+
+    private int rank(Node x, Key key) {
+        if (x == null) return 0;
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) return rank(x.left, key);
+        if (cmp > 0) return 1 + size(x.left) + rank(x.right, key);
+        return size(x.left);
+    }
+
+
+    public void deleteMin() {
+        root = deleteMin(root);
+    }
+
+    private Node deleteMin(Node x) {
+        if (x.left == null) return x.right;
+        x.left = deleteMin(x.left);
+        x.count = 1 + size(x.left) + size(x.right);
+        return x;
     }
 
     public void delete(Key key) {
-
+        delete(root, key);
     }
 
-    private void inOrder(Node node, StringBuilder builder) {
+    private Node delete(Node x, Key key) {
+        if (x == null) return null;
+        int cmp = key.compareTo(x.key);
+        if (cmp < 0) x.left = delete(x.left, key);
+        else if (cmp > 0) x.right = delete(x.right, key);
+        else {
+            // for case both right & left are null, returns null anyways
+
+            //case 1: 1 null child
+            if (x.left == null) return x.right;
+            if (x.right == null) return x.left;
+
+            //case 2: 2 null children
+            Node t = x;
+            x = min(t.right);
+            x.right = deleteMin(t.right);
+            x.left = t.left;
+        }
+        x.count = 1 + size(x.left) + size(x.right);
+        return x;
+    }
+
+    public Iterable<Key> keys() {
+        Queue<Key> q = new LinkedList<>();
+        inOrder(root, q);
+        return q;
+    }
+
+    private void inOrder(Node node, Queue<Key> q) {
         if (node == null) return;
-        inOrder(node.left, builder);
-        builder.append("(" + node.key + ", " + node.val + ") ");
-        inOrder(node.right, builder);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        inOrder(root, builder);
-        return builder.toString();
+        inOrder(node.left, q);
+        q.add(node.key);
+        inOrder(node.right, q);
     }
 
 
@@ -129,12 +197,21 @@ public class SymbolTableBST<Key extends Comparable<Key>, Val>{
         BST.put("Y", 9);
         BST.put("Z", 10);
 
+        BST.delete("G");
+        BST.delete("C");
+        BST.delete("D");
+
+
         System.out.println(BST.min());
         System.out.println(BST.max());
         System.out.println(BST.floor("P"));
         System.out.println(BST.ceil("P"));
 
-        System.out.println(BST);
+        for (String key : BST.keys()) {
+            System.out.print(key + " ");
+        }
+        System.out.println();
+        System.out.println("Size: " + BST.size());
     }
 
 }
